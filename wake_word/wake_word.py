@@ -42,12 +42,17 @@ class WakeWordDetector:
                 self.audio_stream.close()
             except Exception:
                 pass
+
+        # Automatically select the correct mic
+        input_device_index = 0  # ✅ MacBook Pro Microphone
+        channels = 1            # ✅ confirmed from list_devices.py
+
         self.audio_stream = self.pa.open(
             rate=self.porcupine.sample_rate,
-            channels=1,
+            channels=channels,
             format=pyaudio.paInt16,
             input=True,
-            input_device_index=1,  # MacBook Pro mic
+            input_device_index=input_device_index,
             frames_per_buffer=self.porcupine.frame_length,
         )
 

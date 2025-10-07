@@ -8,3 +8,4 @@ accelerate
 soundfile
 pyttsx3
 vosk
+opencv-python

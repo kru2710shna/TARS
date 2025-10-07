@@ -4,8 +4,7 @@ main.py
 T.A.R.S. Assistant: Wake Word → Speech-to-Text → Brain → (TTS)
 """
 
-
-import os, threading
+import os
 from dotenv import load_dotenv
 from wake_word.wake_word import WakeWordDetector
 from voice.speech_to_text import transcribe_with_vosk
@@ -19,9 +18,13 @@ def handle_command():
     """Capture, process, and respond once wake word triggers."""
     user_text = transcribe_with_vosk()
     print(f"🗣️ You said: {user_text}")
+
     response = process_command(user_text)
     print(f"🧠 TARS: {response}")
     speak_text(response)
+
+    return response  # 👈 Return so main() can check for shutdown commands
+
 
 def main():
     detector = WakeWordDetector(
@@ -33,14 +36,24 @@ def main():
 
     try:
         while True:
-            if detector.listen():        # blocks until wake word
+            if detector.listen():  # blocks until wake word
                 print("✅ Wake word detected! Activating assistant...")
-                handle_command()         # do STT → Brain → TTS
+                response = handle_command()  # get the response text
+
+                # 👇 Graceful shutdown trigger
+                if "goodbye" in response.lower() or "deactivating" in response.lower():
+                    print("🛑 Shutting down TARS...")
+                    detector.cleanup()
+                    break  # end the loop cleanly
+
                 print("😴 Returning to standby...\n")
-                detector.reset()         # keep mic active
+                detector.reset()  # reopen mic safely for next activation
+
     except KeyboardInterrupt:
         print("🛑 Exiting...")
+    finally:
         detector.cleanup()
+
 
 if __name__ == "__main__":
     main()
