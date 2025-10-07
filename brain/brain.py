@@ -4,6 +4,8 @@ brain.py
 TARS Brain Module — Processes user input and generates responses.
 """
 
+from Utils.weather.weather import get_weather
+
 def process_command(command: str) -> str:
     """
     Core logic for TARS' brain.
@@ -19,7 +21,13 @@ def process_command(command: str) -> str:
         return "I am TARS, your voice-activated AI assistant."
 
     elif "weather" in command:
-        return "Currently, I can’t fetch live weather data yet — but it’s probably sunny somewhere!"
+        # Try to extract city name after the word "in"
+        city = "San Jose"
+        words = command.split()
+        for i, w in enumerate(words):
+            if w == "in" and i + 1 < len(words):
+                city = words[i + 1].capitalize()
+        return get_weather(city)
 
     elif "exit" in command or "stop" in command:
         return "Deactivating. Goodbye!"

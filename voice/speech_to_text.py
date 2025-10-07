@@ -1,44 +1,54 @@
 """
 speech_to_text.py
 -----------------
-Speech-to-text transcription using Meta's SeamlessM4T.
+Offline Speech-to-Text for TARS using Vosk.
 """
 
-import torch
-import numpy as np
+import os
+import json
 import pyaudio
-from transformers import AutoProcessor, SeamlessM4Tv2Model
+from vosk import Model, KaldiRecognizer
 
-# Load model and processor (only once)
-print("🔄 Loading SeamlessM4T model (this may take a few seconds)...")
-processor = AutoProcessor.from_pretrained("facebook/seamless-m4t-v2-large")
-model = SeamlessM4Tv2Model.from_pretrained("facebook/seamless-m4t-v2-large")
+# Path to the downloaded Vosk model
+MODEL_PATH = os.path.join("models", "vosk-model-small-en-us-0.15")
 
-def record_audio(seconds: int = 5, rate: int = 16000):
-    """Record audio from the system microphone."""
+# Lazy global cache
+_model = None
+_recognizer = None
+
+def load_vosk():
+    """Load the Vosk model once and keep in memory."""
+    global _model, _recognizer
+    if _model is None:
+        print("🔄 Loading Vosk model (first time only)...")
+        _model = Model(MODEL_PATH)
+        _recognizer = KaldiRecognizer(_model, 16000)
+        print("✅ Vosk model loaded successfully.")
+    return _recognizer
+
+def transcribe_with_vosk(seconds: int = 5):
+    """Record microphone audio for `seconds` and transcribe using Vosk."""
+    rec = load_vosk()
+    rate = 16000
+    chunk = 4000
+
     p = pyaudio.PyAudio()
     stream = p.open(format=pyaudio.paInt16, channels=1, rate=rate,
-                    input=True, frames_per_buffer=1024)
+                    input=True, frames_per_buffer=chunk)
+    stream.start_stream()
+
     print(f"🎤 Recording for {seconds} seconds...")
-    frames = [stream.read(1024) for _ in range(0, int(rate / 1024 * seconds))]
+    for _ in range(int(rate / chunk * seconds)):
+        data = stream.read(chunk, exception_on_overflow=False)
+        if len(data) == 0:
+            continue
+        rec.AcceptWaveform(data)
+
+    result = json.loads(rec.FinalResult())
     stream.stop_stream()
     stream.close()
     p.terminate()
 
-    # Convert to float waveform
-    audio_data = np.frombuffer(b"".join(frames), dtype=np.int16).astype(np.float32) / 32768.0
-    return audio_data, rate
-
-def transcribe_with_seamless():
-    """Record user's speech and transcribe using SeamlessM4T."""
-    audio_data, sample_rate = record_audio(seconds=5)
-    print("🧠 Processing audio with SeamlessM4T...")
-
-    inputs = processor(audios=audio_data, sampling_rate=sample_rate, return_tensors="pt")
-
-    with torch.no_grad():
-        output_tokens = model.generate(**inputs, task="asr")  # ASR = automatic speech recognition
-
-    text = processor.decode(output_tokens[0].tolist()[0], skip_special_tokens=True)
+    text = result.get("text", "").strip()
     print(f"🗣️ Transcribed: {text}")
     return text

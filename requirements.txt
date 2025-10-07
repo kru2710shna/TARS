@@ -7,3 +7,4 @@ transformers
 accelerate
 soundfile
 pyttsx3
+vosk
