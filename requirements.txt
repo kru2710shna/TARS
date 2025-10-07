@@ -1,3 +1,9 @@
 pvporcupine
 pyaudio
 python-dotenv
+torch
+torchaudio
+transformers
+accelerate
+soundfile
+pyttsx3

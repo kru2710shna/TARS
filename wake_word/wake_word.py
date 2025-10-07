@@ -39,7 +39,7 @@ class WakeWordDetector:
             channels=1,
             format=pyaudio.paInt16,
             input=True,
-            input_device_index=3,  # 👈 Use MacBook Pro Microphone
+            input_device_index=1,  # 👈 Use MacBook Pro Microphone
             frames_per_buffer=self.porcupine.frame_length
         )
         print("🟢 Wake word system ready. Say: 'Hey TARS'")
