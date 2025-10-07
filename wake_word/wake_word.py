@@ -16,7 +16,7 @@ load_dotenv()
 ACCESS_KEY = os.getenv("ACCESS_KEY")
 
 # 🔥 Hardcoded model path (no config/settings.json needed)
-KEYWORD_PATH = "models/hey_tars_mac.ppn"
+KEYWORD_PATH = "models/HEY-TARS_en_mac_v3_0_0.ppn"
 
 class WakeWordDetector:
     def __init__(self, keyword_path: str, access_key: str):
