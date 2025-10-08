@@ -35,7 +35,58 @@ python main.py
 - Wake word triggers the assistant pipeline.
 - Keyword model: `models/HEY-TARS_en_mac_v3_0_0.ppn`
 
+### ✅ Step 2: Speech-to-Text (STT)
+- Implemented with **Vosk Offline STT**
+- Converts live microphone input to text after wake-word detection
+
 ---
+
+### ✅ Step 3: Text-to-Speech (TTS)
+- Implemented using **pyttsx3**
+- Converts assistant’s response into natural voice output
+
+---
+
+### ✅ Step 4: Voice Assistance Pipeline
+- End-to-end voice loop working: Wake Word → STT → Brain → TTS  
+- Real-time response with seamless audio feedback
+
+---
+
+### ✅ Step 5: Brain Module
+- Core logic handled by `brain/brain.py` and `brain/personality.py`  
+- Processes commands, routes to sub-modules, and generates replies  
+- Includes lightweight rule-based + LLM expansion support
+
+---
+
+### ✅ Step 6: Frontend UI
+- React-based interface under `FRONTEND/tars`  
+- Includes navigation, about page, and design modules  
+- Acts as visual dashboard for user interactions
+
+---
+
+### ✅ Step 7: Weather Utility
+- Located in `Utils/weather/`  
+- Fetches live weather data and verbalizes results through TTS
+
+---
+
+### ✅ Step 8: Camera Utility
+- Located in `Utils/camera/`  
+- Captures image/video input for future computer-vision integration
+
+---
+
+### 🔄 Step 9: Integration Phase (In Progress)
+- Connecting **Brain + Voice + UI + Weather + Camera** for unified behavior  
+- Enables full multimodal assistant experience with live visual feedback
+
+---
+
+---
+
 
 ## 🧭 Roadmap
 
@@ -62,19 +113,42 @@ python main.py
 
 ```
 TARS/
-├── brain/                    # Personality logic and response system
-│   └── personality.py
-├── wake_word/               # Wake word listener using Porcupine
-│   └── wake_word.py
-├── models/                  # Wake word model files (.ppn)
-│   └── HEY-TARS_en_mac_v3_0_0.ppn
-├── voice/                   # (Future) Voice reply modules
-├── config/                  # (Deprecated) Config settings (replaced with folder logic)
-├── main.py                  # Entry point
-├── list_devices.py          # Tool to inspect microphone device indices
+├── main.py                      # Entry point for complete assistant pipeline
+├── list_devices.py              # Tool to inspect microphone devices
 ├── requirements.txt
-├── .env                     # Environment file for secrets
+├── .env                         # Environment variables (ACCESS_KEY, etc.)
+│
+├── brain/                       # Core logic and personality
+│   ├── brain.py
+│   └── personality.py
+│
+├── voice/                       # Voice I/O modules
+│   ├── speech_to_text.py
+│   └── text_to_speech.py
+│
+├── wake_word/                   # Wake-word detection (Picovoice Porcupine)
+│   └── wake_word.py
+│
+├── models/                      # Wake-word model files (.ppn)
+│   └── HEY-TARS_en_mac_v3_0_0.ppn
+│
+├── Utils/                       # Additional assistant utilities
+│   ├── weather/                 # Weather API & response handler
+│   ├── camera/                  # Camera capture and processing
+│   └── movie/                   # (Future) Movie recommendations / info
+│
+├── FRONTEND/                    # React web interface for TARS
+│   └── tars/
+│       ├── public/
+│       └── src/
+│           ├── App.js
+│           ├── Navigation.js
+│           ├── Design/
+│           ├── About.js
+│           └── index.js
+│
 └── README.md
+
 ```
 
 ---
